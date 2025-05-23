@@ -1,0 +1,336 @@
+#include "utils.h"
+
+void BTN_Intr_Handler(void *InstancePtr) {
+    XGpio_InterruptDisable(&BTNInst, BTN_INT);
+    if ((XGpio_InterruptGetStatus(&BTNInst) & BTN_INT) != BTN_INT)
+        return;
+
+    btn_value = XGpio_DiscreteRead(&BTNInst, 1);
+    btnFlag = 1;
+
+    (void)XGpio_InterruptClear(&BTNInst, BTN_INT);
+    XGpio_InterruptEnable(&BTNInst, BTN_INT);
+}
+
+int InterruptSystemSetup(XScuGic *XScuGicInstancePtr) {
+    XGpio_InterruptEnable(&BTNInst, BTN_INT);
+    XGpio_InterruptGlobalEnable(&BTNInst);
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
+                                 (Xil_ExceptionHandler)XScuGic_InterruptHandler,
+                                 XScuGicInstancePtr);
+    Xil_ExceptionEnable();
+    return XST_SUCCESS;
+}
+
+int IntcInitFunction(u16 DeviceId, XGpio *GpioInstancePtr) {
+    XScuGic_Config *IntcConfig;
+    int status;
+    IntcConfig = XScuGic_LookupConfig(DeviceId);
+    status = XScuGic_CfgInitialize(&INTCInst, IntcConfig, IntcConfig->CpuBaseAddress);
+    if (status != XST_SUCCESS)
+        return XST_FAILURE;
+    status = InterruptSystemSetup(&INTCInst);
+    if (status != XST_SUCCESS)
+        return XST_FAILURE;
+    status = XScuGic_Connect(&INTCInst,
+                             INTC_GPIO_INTERRUPT_ID,
+                             (Xil_ExceptionHandler)BTN_Intr_Handler,
+                             (void *)GpioInstancePtr);
+    if (status != XST_SUCCESS)
+        return XST_FAILURE;
+    XGpio_InterruptEnable(GpioInstancePtr, 1);
+    XGpio_InterruptGlobalEnable(GpioInstancePtr);
+    XScuGic_Enable(&INTCInst, INTC_GPIO_INTERRUPT_ID);
+    return XST_SUCCESS;
+}
+
+
+void loadSprites(){
+
+	// UI
+
+	int* battleBackground = (int *)0x1213B00C;
+	object battle = { battleBackground, 240, 160, 0, 0, 0, 0, 0};
+	objects.push_back(battle); // 0
+
+	int* starterBackground = (int *)0x12924010;
+	object starter = {starterBackground, 240, 160, 0, 0, 0, 0, 0};
+	objects.push_back(starter); // 1
+
+	int* starterCursor = (int *)0x1315D014;
+	object cursor = { starterCursor, 25, 27, 110, 30, 1, 0, 0};
+	objects.push_back(cursor); // 2
+
+	int* pokeballSprite = (int *)0x1316D014;
+	object pokeball = { pokeballSprite, 16, 16, 0, 0, 2, 0, 0};
+	objects.push_back(pokeball); // 3
+
+	int* healthBarGreen = (int *)0x1317D014;
+	object hbg = { healthBarGreen, 1, 3, 44, 22, 3, 0, 0};
+	objects.push_back(hbg); // 4
+
+	int* healthBarRed = (int *)0x1318D014;
+	object hbr = { healthBarRed, 1, 3, 174, 95, 3, 0, 0};
+	objects.push_back(hbr); // 5
+
+	int* healthBarYellow = (int *)0x1319D014;
+	object hby = { healthBarYellow, 1, 3, 0, 0, 3, 0, 0};
+	objects.push_back(hby); // 6
+
+	// Health bar sprite's
+
+	int* healthBar = (int *)0x1320D014;
+	object playerHealthBar = { healthBar, 100, 29, 5, 5, 2, 0, 0};
+	objects.push_back(playerHealthBar); // 7
+	object enemyHealthBar = { healthBar, 100, 29, 135, 78, 2, 0, 0};
+	objects.push_back(enemyHealthBar); // 8
+
+	// Menu cursor
+
+	int* redArrowSprite = (int *)0x1321D014;
+	object redArrow = { redArrowSprite, 6, 10, 5, 5, 2, 0, 0};
+	objects.push_back(redArrow); // 9
+
+	// Player sprite's
+
+	int* blazSprite = (int *)0x1322D014;
+	object blaziken = { blazSprite, 64, 64, 48, 48, 1, 0, 0};
+	objects.push_back(blaziken); // 10
+
+	int* swamSprite = (int *)0x1323D014;
+	object swampert = { swamSprite, 64, 64, 48, 53, 1, 0, 0};
+	objects.push_back(swampert); // 11
+
+	int* scepSprite = (int *)0x1324D014;
+	object sceptile = { scepSprite, 64, 64, 48, 49, 1, 0, 0};
+	objects.push_back(sceptile); // 12
+
+	// Player front sprite's
+
+	int* blazFrontSprite = (int *)0x1325D014;
+	object blazikenFront = { blazFrontSprite, 64, 64, 36, 80, 1, 0, 0};
+	objects.push_back(blazikenFront); // 13
+
+	int* swamFrontSprite = (int *)0x1326D014;
+	object swampertFront = { swamFrontSprite, 64, 64, 88, 80, 1, 0, 0};
+	objects.push_back(swampertFront); // 14
+
+	int* scepFrontSprite = (int *)0x1327D014;
+	object sceptileFront = { scepFrontSprite, 64, 64, 140, 80, 1, 0, 0};
+	objects.push_back(sceptileFront); // 15
+
+	// Enemy sprite's
+
+	int* aggr = (int *)0x1328D014;
+	object aggron = {aggr, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(aggron); // 16
+
+	int* arma = (int *)0x1329D014;
+	object armaldo = {arma, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(armaldo); // 17
+
+	int* clay = (int *)0x1330D014;
+	object claydol = {clay, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(claydol); // 18
+
+	int* crad = (int *)0x1331D014;
+	object cradily = {crad, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(cradily); // 19
+
+	int* meta = (int *)0x1332D014;
+	object metagross = {meta, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(metagross); // 20
+
+	int* skar = (int *)0x1333D014;
+	object skarmory = {skar, 64, 64, 142, 12, 2, 0, 0};
+	objects.push_back(skarmory); // 21
+
+	// Enemy zoom sprite's
+
+	int * aggrZoom = (int *)0x1334D014;
+	object aggronZoom = {aggrZoom, 16, 16, 208, 0, 2, 0, 0};
+	objects.push_back(aggronZoom); // 22
+
+	int * armaZoom = (int *)0x1335D014;
+	object armaldoZoom = {armaZoom, 16, 16, 224, 0, 2, 0, 0};
+	objects.push_back(armaldoZoom); // 23
+
+	int* clayZoom = (int *)0x1336D014;
+	object claydolZoom = {clayZoom, 16, 16, 208, 16, 2, 0, 0};
+	objects.push_back(claydolZoom); // 24
+
+	int * cradZoom = (int *)0x1337D014;
+	object cradilyZoom = {cradZoom, 16, 16, 224, 16, 2, 0, 0};
+	objects.push_back(cradilyZoom); // 25
+
+	int * metaZoom = (int *)0x1338D014;
+	object metagrossZoom = {metaZoom, 16, 16, 208, 32, 2, 0, 0};
+	objects.push_back(metagrossZoom); // 26
+
+	int * skarZoom = (int *)0x1339D014;
+	object skarmoryZoom = {skarZoom, 16, 16, 224, 32, 2, 0, 0};
+	objects.push_back(skarmoryZoom); // 27
+
+	return;
+}
+
+int charNameX = 140;
+int charNameY = 83;
+int enemNameX = 10;
+int enemNameY = 10;
+int typeOffset = 77;
+int healthOffset = 9;
+void printNames(){
+	switch(cursorVal){
+	case 0:
+		stringToImageNames("blaziken", charNameX, charNameY);
+		stringToImageNames(std::to_string(characters[6].type), charNameX+typeOffset, charNameY);
+		stringToImageNames(std::to_string(characters[6].health), charNameX-1, charNameY+healthOffset);
+		break;
+	case 1:
+		stringToImageNames("swampert", charNameX, charNameY);
+		stringToImageNames(std::to_string(characters[6].type), charNameX+typeOffset, charNameY);
+		stringToImageNames(std::to_string(characters[6].health), charNameX-1, charNameY+healthOffset);
+		break;
+	case 2:
+		stringToImageNames("sceptile", charNameX, charNameY);
+		stringToImageNames(std::to_string(characters[6].type), charNameX+typeOffset, charNameY);
+		stringToImageNames(std::to_string(characters[6].health), charNameX-1, charNameY+healthOffset);
+		break;
+	default:
+		break;
+	}
+	switch(ordering[currEnemy]){
+	case 0:
+		stringToImageNames("aggron", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	case 1:
+		stringToImageNames("armaldo", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	case 2:
+		stringToImageNames("claydol", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	case 3:
+		stringToImageNames("cradily", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	case 4:
+		stringToImageNames("metagross", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	case 5:
+		stringToImageNames("skarmory", enemNameX, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].type), enemNameX+typeOffset, enemNameY);
+		stringToImageNames(std::to_string(characters[ordering[currEnemy]].health), enemNameX-1, enemNameY+healthOffset);
+		break;
+	default:
+		break;
+	}
+}
+
+void stringToImage(std::string msg, int startX, int startY){
+	int cursor = 0;
+	for(char c : msg){
+		int index = 0;
+		int charVal = (int)c;
+		if (charVal >= 48 && charVal <= 57) {
+		    index = charVal - 48;
+		}
+		else if (charVal >= 97 && charVal <= 122) {
+		    index = charVal - 87;
+		}
+		if(index >= 0 && index <= 9){
+			int* imageData = (int*)(0x1340D014 + (index * 0x00000400));
+			letters.push_back({imageData, 6, 10, startX+cursor, startY, 4, 1, 0});
+		}else if(index >= 10 && index <= 35){
+			int* imageData = (int*)(0x1340D014 + (index * 0x00000400));
+			letters.push_back({imageData, 6, 9, startX+cursor, startY, 4, 1, 0});
+		}
+		cursor += 7;
+	}
+}
+
+void stringToImageNames(std::string msg, int startX, int startY){
+	int cursor = 0;
+	for(char c : msg){
+		int index = 0;
+		int charVal = (int)c;
+		if (charVal >= 48 && charVal <= 57) {
+		    index = charVal - 48;
+		}
+		else if (charVal >= 97 && charVal <= 122) {
+		    index = charVal - 87;
+		}
+
+		if(index >= 0 && index <= 9){
+			int* imageData = (int*)(0x13416014 + (index * 0x00000400));
+			letters.push_back({imageData, 5, 8, startX+cursor, startY, 4, 1, 0});
+		}
+		else if(index >= 10 && index <= 35){
+			int* imageData = (int*)(0x13416014 + (index * 0x00000400));
+			letters.push_back({imageData, 5, 8, startX+cursor, startY, 4, 1, 0});
+		}
+
+		cursor += 6;
+	}
+}
+
+void generateRandomEnemyOrder() { // ordering[i] = i
+    for (int i = 0; i < numEnemies; i++) { ordering[i] = i; }
+    shuffleArray(ordering, numEnemies);
+}
+
+void shuffleArray(int arr[], int size) {
+    for (int i = size - 1; i > 0; i--) {
+        int randIndex = (*lfsr_ptr) % (i + 1);
+
+        int temp = arr[i];
+        arr[i] = arr[randIndex];
+        arr[randIndex] = temp;
+    }
+}
+
+void typeDamage(character *a, character *b){
+	int calculatedDamage = baseDamage * typeEffectiveness[a->type][b->type];
+	xil_printf("Before: Health = %d\r\n", a->health);
+	b->health -= calculatedDamage;
+	xil_printf("Type Damage: %d, Health: %d, Effectiveness = %d.%02d\r\n", calculatedDamage, b->health, (int)typeEffectiveness[a->type][b->type], (int)(typeEffectiveness[a->type][b->type] * 100) % 100);
+}
+
+int countTimes(){
+	int startCount = (int)(*counter_ptr);
+	usleep(2000000);
+	int endCount = (int)(*counter_ptr);
+	int timeDamage = endCount - startCount;
+	xil_printf("Start count: %d\r\n", startCount);
+	xil_printf("End count: %d", endCount);
+	return timeDamage;
+}
+
+void timedDamage(character *a, int timeDamage){
+	xil_printf("Before: Health = %d\r\n", a->health);
+//	int startCount = (int)(*counter_ptr);
+//	usleep(2000000);
+//	int endCount = (int)(*counter_ptr);
+//	int timeDamage = endCount - startCount;
+	a->health -= timeDamage * 3;
+//	xil_printf("Start count: %d\r\n", startCount);
+//	xil_printf("End count: %d", endCount);
+	xil_printf("Timed Damage: %d, Health: %d\r\n", timeDamage * 3, a->health);
+//	return timeDamage;
+}
+
+void randomDamage(character *a){
+	int damage = ((int)(*lfsr_ptr) % 25) + 32;
+	xil_printf("Before: Health = %d\r\n", a->health);
+	a->health -= damage;
+	xil_printf("Random Damage: %d, Health: %d\r\n", damage, a->health);
+}

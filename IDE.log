@@ -1,0 +1,857 @@
+10:40:53 INFO  : Launching XSCT server: xsct.bat -n  -interactive C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\temp_xsdb_launch_script.tcl
+10:40:56 INFO  : Registering command handlers for Vitis TCF services
+10:41:00 INFO  : XSCT server has started successfully.
+10:41:01 INFO  : plnx-install-location is set to ''
+10:41:03 INFO  : Successfully done setting XSCT server connection channel  
+10:41:03 INFO  : Successfully done query RDI_DATADIR 
+10:41:03 INFO  : Successfully done setting workspace for the tool. 
+10:41:06 INFO  : Platform repository initialization has completed.
+10:42:55 INFO  : Result from executing command 'getProjects': final_platform
+10:42:55 INFO  : Result from executing command 'getPlatforms': 
+10:45:58 INFO  : Result from executing command 'getProjects': final_platform
+10:45:58 INFO  : Result from executing command 'getPlatforms': final_platform|C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm
+10:45:59 INFO  : Platform 'final_platform' is added to custom repositories.
+10:50:42 INFO  : Result from executing command 'getProjects': final_platform
+10:50:42 INFO  : Result from executing command 'getPlatforms': final_platform|C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm
+10:50:43 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+10:50:43 INFO  : Updating application flags with new BSP settings...
+10:50:43 INFO  : Successfully updated application flags for project audio_project.
+10:50:49 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+10:50:49 INFO  : Updating application flags with new BSP settings...
+10:50:49 INFO  : Successfully updated application flags for project video_project.
+10:58:49 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+10:59:05 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+10:59:05 INFO  : 'jtag frequency' command is executed.
+10:59:05 INFO  : Context for 'APU' is selected.
+10:59:05 INFO  : System reset is completed.
+10:59:08 INFO  : 'after 3000' command is executed.
+10:59:08 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+10:59:11 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+10:59:11 INFO  : Context for 'APU' is selected.
+10:59:11 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+10:59:11 INFO  : 'configparams force-mem-access 1' command is executed.
+10:59:11 INFO  : Context for 'APU' is selected.
+10:59:11 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+10:59:12 INFO  : 'ps7_init' command is executed.
+10:59:12 INFO  : 'ps7_post_config' command is executed.
+10:59:12 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+10:59:12 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+10:59:12 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+10:59:14 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+10:59:14 INFO  : 'configparams force-mem-access 0' command is executed.
+10:59:14 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+10:59:14 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+10:59:14 INFO  : 'con' command is executed.
+10:59:14 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+10:59:14 INFO  : 'con' command is executed.
+10:59:14 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+10:59:14 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+11:00:42 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+11:00:43 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+11:01:11 INFO  : Disconnected from the channel tcfchan#3.
+11:01:11 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+11:01:11 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+11:01:11 INFO  : 'jtag frequency' command is executed.
+11:01:11 INFO  : Context for 'APU' is selected.
+11:01:11 INFO  : System reset is completed.
+11:01:14 INFO  : 'after 3000' command is executed.
+11:01:14 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+11:01:17 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+11:01:17 INFO  : Context for 'APU' is selected.
+11:01:17 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+11:01:17 INFO  : 'configparams force-mem-access 1' command is executed.
+11:01:17 INFO  : Context for 'APU' is selected.
+11:01:17 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+11:01:17 INFO  : 'ps7_init' command is executed.
+11:01:17 INFO  : 'ps7_post_config' command is executed.
+11:01:17 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:01:18 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+11:01:18 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:01:20 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+11:01:20 INFO  : 'configparams force-mem-access 0' command is executed.
+11:01:20 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+11:01:20 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:01:20 INFO  : 'con' command is executed.
+11:01:20 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:01:20 INFO  : 'con' command is executed.
+11:01:20 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+11:01:20 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+11:03:01 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+11:03:01 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+11:03:34 INFO  : Disconnected from the channel tcfchan#5.
+11:03:34 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+11:03:34 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+11:03:34 INFO  : 'jtag frequency' command is executed.
+11:03:34 INFO  : Context for 'APU' is selected.
+11:03:34 INFO  : System reset is completed.
+11:03:37 INFO  : 'after 3000' command is executed.
+11:03:37 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+11:03:39 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+11:03:40 INFO  : Context for 'APU' is selected.
+11:03:40 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+11:03:40 INFO  : 'configparams force-mem-access 1' command is executed.
+11:03:40 INFO  : Context for 'APU' is selected.
+11:03:40 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+11:03:40 INFO  : 'ps7_init' command is executed.
+11:03:40 INFO  : 'ps7_post_config' command is executed.
+11:03:40 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:03:41 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+11:03:41 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:03:42 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+11:03:43 INFO  : 'configparams force-mem-access 0' command is executed.
+11:03:43 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+11:03:43 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:03:43 INFO  : 'con' command is executed.
+11:03:43 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:03:43 INFO  : 'con' command is executed.
+11:03:43 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+11:03:43 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+11:05:20 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+11:05:21 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+11:05:33 INFO  : Disconnected from the channel tcfchan#7.
+11:05:33 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+11:05:34 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+11:05:34 INFO  : 'jtag frequency' command is executed.
+11:05:34 INFO  : Context for 'APU' is selected.
+11:05:34 INFO  : System reset is completed.
+11:05:37 INFO  : 'after 3000' command is executed.
+11:05:37 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+11:05:39 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+11:05:39 INFO  : Context for 'APU' is selected.
+11:05:39 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+11:05:39 INFO  : 'configparams force-mem-access 1' command is executed.
+11:05:39 INFO  : Context for 'APU' is selected.
+11:05:39 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+11:05:40 INFO  : 'ps7_init' command is executed.
+11:05:40 INFO  : 'ps7_post_config' command is executed.
+11:05:40 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:05:41 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+11:05:41 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:05:43 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+11:05:43 INFO  : 'configparams force-mem-access 0' command is executed.
+11:05:43 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+11:05:43 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:05:43 INFO  : 'con' command is executed.
+11:05:43 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:05:43 INFO  : 'con' command is executed.
+11:05:43 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+11:05:43 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+11:07:57 INFO  : Disconnected from the channel tcfchan#9.
+11:07:57 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+11:07:58 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+11:07:58 INFO  : 'jtag frequency' command is executed.
+11:07:58 INFO  : Context for 'APU' is selected.
+11:07:58 INFO  : System reset is completed.
+11:08:01 INFO  : 'after 3000' command is executed.
+11:08:01 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+11:08:03 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+11:08:03 INFO  : Context for 'APU' is selected.
+11:08:03 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+11:08:03 INFO  : 'configparams force-mem-access 1' command is executed.
+11:08:03 INFO  : Context for 'APU' is selected.
+11:08:03 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+11:08:04 INFO  : 'ps7_init' command is executed.
+11:08:04 INFO  : 'ps7_post_config' command is executed.
+11:08:04 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:08:04 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+11:08:04 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:08:06 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+11:08:06 INFO  : 'configparams force-mem-access 0' command is executed.
+11:08:06 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+11:08:06 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:08:06 INFO  : 'con' command is executed.
+11:08:06 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:08:06 INFO  : 'con' command is executed.
+11:08:06 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+11:08:06 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+11:50:53 INFO  : Disconnected from the channel tcfchan#10.
+11:50:53 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+11:50:54 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+11:50:54 INFO  : 'jtag frequency' command is executed.
+11:50:54 INFO  : Context for 'APU' is selected.
+11:50:54 INFO  : System reset is completed.
+11:50:57 INFO  : 'after 3000' command is executed.
+11:50:57 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+11:50:59 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+11:50:59 INFO  : Context for 'APU' is selected.
+11:50:59 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+11:50:59 INFO  : 'configparams force-mem-access 1' command is executed.
+11:50:59 INFO  : Context for 'APU' is selected.
+11:50:59 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+11:51:00 INFO  : 'ps7_init' command is executed.
+11:51:00 INFO  : 'ps7_post_config' command is executed.
+11:51:00 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:51:00 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+11:51:00 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:51:02 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+11:51:02 INFO  : 'configparams force-mem-access 0' command is executed.
+11:51:02 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+11:51:03 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+11:51:03 INFO  : 'con' command is executed.
+11:51:03 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+11:51:03 INFO  : 'con' command is executed.
+11:51:03 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+11:51:03 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+12:45:43 INFO  : Disconnected from the channel tcfchan#11.
+12:45:43 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+12:45:43 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+12:45:43 INFO  : 'jtag frequency' command is executed.
+12:45:43 INFO  : Context for 'APU' is selected.
+12:45:43 INFO  : System reset is completed.
+12:45:46 INFO  : 'after 3000' command is executed.
+12:45:46 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+12:45:49 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+12:45:49 INFO  : Context for 'APU' is selected.
+12:45:49 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+12:45:49 INFO  : 'configparams force-mem-access 1' command is executed.
+12:45:49 INFO  : Context for 'APU' is selected.
+12:45:49 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+12:45:50 INFO  : 'ps7_init' command is executed.
+12:45:50 INFO  : 'ps7_post_config' command is executed.
+12:45:50 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:45:50 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+12:45:50 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:45:52 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+12:45:52 INFO  : 'configparams force-mem-access 0' command is executed.
+12:45:52 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+12:45:52 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:45:52 INFO  : 'con' command is executed.
+12:45:52 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:45:52 INFO  : 'con' command is executed.
+12:45:52 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+12:45:52 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+12:46:57 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+12:46:59 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+12:47:16 INFO  : Disconnected from the channel tcfchan#12.
+12:47:16 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+12:47:16 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+12:47:16 INFO  : 'jtag frequency' command is executed.
+12:47:16 INFO  : Context for 'APU' is selected.
+12:47:16 INFO  : System reset is completed.
+12:47:19 INFO  : 'after 3000' command is executed.
+12:47:20 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+12:47:22 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+12:47:22 INFO  : Context for 'APU' is selected.
+12:47:22 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+12:47:22 INFO  : 'configparams force-mem-access 1' command is executed.
+12:47:22 INFO  : Context for 'APU' is selected.
+12:47:22 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+12:47:22 INFO  : 'ps7_init' command is executed.
+12:47:22 INFO  : 'ps7_post_config' command is executed.
+12:47:22 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:47:23 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+12:47:23 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:47:25 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+12:47:25 INFO  : 'configparams force-mem-access 0' command is executed.
+12:47:25 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+12:47:25 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:47:25 INFO  : 'con' command is executed.
+12:47:25 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:47:25 INFO  : 'con' command is executed.
+12:47:25 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+12:47:25 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+12:49:33 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+12:49:34 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+12:49:51 INFO  : Disconnected from the channel tcfchan#14.
+12:49:51 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+12:49:51 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+12:49:51 INFO  : 'jtag frequency' command is executed.
+12:49:51 INFO  : Context for 'APU' is selected.
+12:49:51 INFO  : System reset is completed.
+12:49:54 INFO  : 'after 3000' command is executed.
+12:49:55 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+12:49:57 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+12:49:57 INFO  : Context for 'APU' is selected.
+12:49:57 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+12:49:57 INFO  : 'configparams force-mem-access 1' command is executed.
+12:49:57 INFO  : Context for 'APU' is selected.
+12:49:57 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+12:49:58 INFO  : 'ps7_init' command is executed.
+12:49:58 INFO  : 'ps7_post_config' command is executed.
+12:49:58 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:49:58 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+12:49:58 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:50:00 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+12:50:00 INFO  : 'configparams force-mem-access 0' command is executed.
+12:50:00 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+12:50:00 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:50:00 INFO  : 'con' command is executed.
+12:50:00 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:50:00 INFO  : 'con' command is executed.
+12:50:00 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+12:50:00 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+12:52:11 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+12:52:12 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+12:52:23 INFO  : Disconnected from the channel tcfchan#16.
+12:52:23 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+12:52:24 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+12:52:24 INFO  : 'jtag frequency' command is executed.
+12:52:24 INFO  : Context for 'APU' is selected.
+12:52:24 INFO  : System reset is completed.
+12:52:27 INFO  : 'after 3000' command is executed.
+12:52:27 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+12:52:29 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+12:52:29 INFO  : Context for 'APU' is selected.
+12:52:29 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+12:52:29 INFO  : 'configparams force-mem-access 1' command is executed.
+12:52:29 INFO  : Context for 'APU' is selected.
+12:52:29 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+12:52:30 INFO  : 'ps7_init' command is executed.
+12:52:30 INFO  : 'ps7_post_config' command is executed.
+12:52:30 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:52:30 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+12:52:30 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:52:32 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+12:52:32 INFO  : 'configparams force-mem-access 0' command is executed.
+12:52:32 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+12:52:32 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:52:32 INFO  : 'con' command is executed.
+12:52:32 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:52:33 INFO  : 'con' command is executed.
+12:52:33 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+12:52:33 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+12:53:41 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+12:53:42 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+12:53:55 INFO  : Disconnected from the channel tcfchan#18.
+12:53:55 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+12:53:55 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+12:53:55 INFO  : 'jtag frequency' command is executed.
+12:53:55 INFO  : Context for 'APU' is selected.
+12:53:55 INFO  : System reset is completed.
+12:53:58 INFO  : 'after 3000' command is executed.
+12:53:58 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+12:54:01 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+12:54:01 INFO  : Context for 'APU' is selected.
+12:54:01 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+12:54:01 INFO  : 'configparams force-mem-access 1' command is executed.
+12:54:01 INFO  : Context for 'APU' is selected.
+12:54:01 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+12:54:01 INFO  : 'ps7_init' command is executed.
+12:54:01 INFO  : 'ps7_post_config' command is executed.
+12:54:01 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:54:02 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+12:54:02 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:54:03 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+12:54:04 INFO  : 'configparams force-mem-access 0' command is executed.
+12:54:04 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+12:54:04 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+12:54:04 INFO  : 'con' command is executed.
+12:54:04 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+12:54:04 INFO  : 'con' command is executed.
+12:54:04 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+12:54:04 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+13:06:00 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+13:06:01 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+13:06:14 INFO  : Disconnected from the channel tcfchan#20.
+13:06:14 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+13:06:14 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+13:06:14 INFO  : 'jtag frequency' command is executed.
+13:06:14 INFO  : Context for 'APU' is selected.
+13:06:14 INFO  : System reset is completed.
+13:06:17 INFO  : 'after 3000' command is executed.
+13:06:17 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+13:06:20 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+13:06:20 INFO  : Context for 'APU' is selected.
+13:06:20 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+13:06:20 INFO  : 'configparams force-mem-access 1' command is executed.
+13:06:20 INFO  : Context for 'APU' is selected.
+13:06:20 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+13:06:20 INFO  : 'ps7_init' command is executed.
+13:06:20 INFO  : 'ps7_post_config' command is executed.
+13:06:20 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:06:21 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+13:06:21 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:06:23 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+13:06:23 INFO  : 'configparams force-mem-access 0' command is executed.
+13:06:23 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+13:06:23 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:06:23 INFO  : 'con' command is executed.
+13:06:23 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:06:23 INFO  : 'con' command is executed.
+13:06:23 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+13:06:23 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+13:07:50 INFO  : Checking for BSP changes to sync application flags for project 'audio_project'...
+13:07:51 INFO  : Checking for BSP changes to sync application flags for project 'video_project'...
+13:08:02 INFO  : Disconnected from the channel tcfchan#22.
+13:08:02 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+13:08:03 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+13:08:03 INFO  : 'jtag frequency' command is executed.
+13:08:03 INFO  : Context for 'APU' is selected.
+13:08:03 INFO  : System reset is completed.
+13:08:06 INFO  : 'after 3000' command is executed.
+13:08:06 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+13:08:08 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+13:08:08 INFO  : Context for 'APU' is selected.
+13:08:08 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+13:08:08 INFO  : 'configparams force-mem-access 1' command is executed.
+13:08:08 INFO  : Context for 'APU' is selected.
+13:08:08 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+13:08:09 INFO  : 'ps7_init' command is executed.
+13:08:09 INFO  : 'ps7_post_config' command is executed.
+13:08:09 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:08:09 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+13:08:09 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:08:11 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+13:08:11 INFO  : 'configparams force-mem-access 0' command is executed.
+13:08:11 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+13:08:11 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:08:11 INFO  : 'con' command is executed.
+13:08:11 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:08:11 INFO  : 'con' command is executed.
+13:08:11 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+13:08:11 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+13:12:35 INFO  : Disconnected from the channel tcfchan#24.
+13:12:35 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+13:12:36 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+13:12:36 INFO  : 'jtag frequency' command is executed.
+13:12:36 INFO  : Context for 'APU' is selected.
+13:12:36 INFO  : System reset is completed.
+13:12:39 INFO  : 'after 3000' command is executed.
+13:12:39 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+13:12:41 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+13:12:41 INFO  : Context for 'APU' is selected.
+13:12:41 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+13:12:41 INFO  : 'configparams force-mem-access 1' command is executed.
+13:12:41 INFO  : Context for 'APU' is selected.
+13:12:41 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+13:12:42 INFO  : 'ps7_init' command is executed.
+13:12:42 INFO  : 'ps7_post_config' command is executed.
+13:12:42 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:12:42 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+13:12:42 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:12:44 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+13:12:44 INFO  : 'configparams force-mem-access 0' command is executed.
+13:12:44 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+13:12:44 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+13:12:44 INFO  : 'con' command is executed.
+13:12:44 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+13:12:44 INFO  : 'con' command is executed.
+13:12:44 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+13:12:44 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+14:04:49 INFO  : Disconnected from the channel tcfchan#25.
+14:04:49 INFO  : Connected to target on host '127.0.0.1' and port '3121'.
+14:04:49 INFO  : Jtag cable 'Digilent Zed 210248469786' is selected.
+14:04:49 INFO  : 'jtag frequency' command is executed.
+14:04:49 INFO  : Context for 'APU' is selected.
+14:04:49 INFO  : System reset is completed.
+14:04:52 INFO  : 'after 3000' command is executed.
+14:04:52 INFO  : 'targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}' command is executed.
+14:04:54 INFO  : Device configured successfully with "C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit"
+14:04:54 INFO  : Context for 'APU' is selected.
+14:04:54 INFO  : Hardware design and registers information is loaded from 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa'.
+14:04:54 INFO  : 'configparams force-mem-access 1' command is executed.
+14:04:54 INFO  : Context for 'APU' is selected.
+14:04:54 INFO  : Sourcing of 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl' is done.
+14:04:55 INFO  : 'ps7_init' command is executed.
+14:04:55 INFO  : 'ps7_post_config' command is executed.
+14:04:55 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+14:04:55 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf' is downloaded to processor 'ps7_cortexa9_0'.
+14:04:55 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+14:04:57 INFO  : The application 'C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf' is downloaded to processor 'ps7_cortexa9_1'.
+14:04:57 INFO  : 'configparams force-mem-access 0' command is executed.
+14:04:57 INFO  : ----------------XSDB Script----------------
+connect -url tcp:127.0.0.1:3121
+targets -set -nocase -filter {name =~"APU*"}
+rst -system
+after 3000
+targets -set -filter {jtag_cable_name =~ "Digilent Zed 210248469786" && level==0 && jtag_device_ctx=="jsn-Zed-210248469786-03727093-0"}
+fpga -file C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/hw/design_1_wrapper_alt_address.xsa -mem-ranges [list {0x40000000 0xbfffffff}] -regs
+configparams force-mem-access 1
+targets -set -nocase -filter {name =~"APU*"}
+source C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/psinit/ps7_init.tcl
+ps7_init
+ps7_post_config
+targets -set -nocase -filter {name =~ "*A9*#0"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf
+targets -set -nocase -filter {name =~ "*A9*#1"}
+dow C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf
+configparams force-mem-access 0
+----------------End of Script----------------
+
+14:04:58 INFO  : Context for processor 'ps7_cortexa9_0' is selected.
+14:04:58 INFO  : 'con' command is executed.
+14:04:58 INFO  : Context for processor 'ps7_cortexa9_1' is selected.
+14:04:58 INFO  : 'con' command is executed.
+14:04:58 INFO  : ----------------XSDB Script (After Launch)----------------
+targets -set -nocase -filter {name =~ "*A9*#0"}
+con
+targets -set -nocase -filter {name =~ "*A9*#1"}
+con
+----------------End of Script----------------
+
+14:04:58 INFO  : Launch script is exported to file 'C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\project_system\_ide\scripts\systemdebugger_project_system_standalone.tcl'
+14:30:53 INFO  : Disconnected from the channel tcfchan#26.
+18:02:43 INFO  : Launching XSCT server: xsct.bat -n  -interactive C:\Users\nlaga\Desktop\SFU\Spring2025\Ensc452\final_workspace\temp_xsdb_launch_script.tcl
+18:02:48 INFO  : XSCT server has started successfully.
+18:02:48 INFO  : Successfully done setting XSCT server connection channel  
+18:02:48 INFO  : plnx-install-location is set to ''
+18:02:48 INFO  : Successfully done setting workspace for the tool. 
+18:02:59 INFO  : Platform repository initialization has completed.
+18:02:59 INFO  : Registering command handlers for Vitis TCF services
+18:03:08 INFO  : Successfully done query RDI_DATADIR 

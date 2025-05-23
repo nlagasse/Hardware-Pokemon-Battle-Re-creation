@@ -1,0 +1,508 @@
+//#include "config.h"
+//#include "game.h"
+#include "utils.h"
+
+//----------------------------------------------------
+// MAIN FUNCTION
+//----------------------------------------------------
+int main(void) {
+    xil_printf("Entering Main Video\n\r");
+    int status;
+
+    // Initialize push buttons and interrupts
+    status = XGpio_Initialize(&BTNInst, BTNS_DEVICE_ID);
+    if (status != XST_SUCCESS)
+        return XST_FAILURE;
+    XGpio_SetDataDirection(&BTNInst, 1, 0xFF);
+    status = IntcInitFunction(INTC_DEVICE_ID, &BTNInst);
+    if (status != XST_SUCCESS)
+        return XST_FAILURE;
+    Xil_SetTlbAttributes((u32)image_buffer_pointer, NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&COMM_VAL), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&STATE1), NORM_NONCACHE);
+	Xil_SetTlbAttributes((u32)(&STATE2), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&MOVE), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&ERROR), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&SELECT), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&DESELECT), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&HEAL), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&NOTEFFECTIVE), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&EFFECTIVE), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&SUPEREFFECTIVE), NORM_NONCACHE);
+    Xil_SetTlbAttributes((u32)(&VOLUME), NORM_NONCACHE);
+    COMM_VAL = 0;
+    STATE1 = false;
+	STATE2 = false;
+    MOVE = false;
+    ERROR = false;
+    SELECT = false;
+    DESELECT = false;
+    HEAL = false;
+    NOTEFFECTIVE = false;
+    EFFECTIVE = false;
+    SUPEREFFECTIVE = false;
+    VOLUME = 100;
+
+//    Xil_SetTlbAttributes((u32)(&IPC_INTERRUPT), NORM_NONCACHE);
+
+
+    memset(image_buffer_pointer, 0, NUM_BYTES_BUFFER);
+    Xil_DCacheFlush();
+    memset(image_buffer_pointer, 0, NUM_BYTES_BUFFER);
+    xil_printf("video core: waiting\n\r");
+    while(COMM_VAL != 1){
+//    	usleep(10000);
+//    	xil_printf("comm: %llu\n\r", COMM_VAL);
+    }
+    xil_printf("video core: done waiting\n\r");
+
+    // Initialize enemy ordering
+    generateRandomEnemyOrder();
+
+    // Initialize character data
+    for(int i=0; i<numEnemies; i++){
+    	characters[i].type = i;
+    	characters[i].health = 48;
+    }
+    characters[6].health = (48*(numEnemies-1)); // 48
+
+    loadSprites();
+    starterMenu();
+    gameState = 1; // Now in battle mode
+
+    // Cleanup
+    objects[2].draw = false;
+    objects[13].draw = false;
+    objects[14].draw = false;
+    objects[15].draw = false;
+
+    // Draw health bar's and enemy zoom sprites
+    objects[7].draw = true;
+    objects[8].draw = true;
+    objects[22].draw = true;
+    objects[23].draw = true;
+    objects[24].draw = true;
+    objects[25].draw = true;
+    objects[26].draw = true;
+    objects[27].draw = true;
+
+    // Choose starting pokemon to draw
+    objects[cursorVal+10].draw = true;
+    playerSprite = cursorVal+10;
+    characters[6].type = cursorVal;
+    objects[ordering[currEnemy]+16].draw = true;
+    enemySprite = ordering[currEnemy]+16;
+
+    // Initial menu draw
+    stringToImage("attack", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("settings", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("heal", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+	stringToImage("quit", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+
+	// Draw cursor
+	objects[9].draw = true;
+	objects[9].posX = TEXT_BASE_WIDTH - 8;
+	objects[9].posY = TEXT_BASE_HEIGHT;
+
+	// Draw background
+	background = objects[0].image;
+	upscaleBackground(background);
+
+	// Initial render
+	updateAndRender();
+
+    // Game loop
+	int cursorPos = 0;
+	// 0 1
+	// 2 3
+	bool loopFlag = true;
+	bool playerWin = false;
+	while(loopFlag){
+		if(btnFlag == 1){
+			btnFlag = 0;
+//			xil_printf("Button: %d\n\r", COMM_VAL);
+			switch (btn_value) { // Initial menu
+				case 0b1:  // middle, select
+					xil_printf("middle\n\r");
+					if(cursorPos == 0){ // attack menu
+						SELECT = true;
+						bool innerFlag = true;
+						cursorPos = 0;
+						while(innerFlag){ // choose a move
+							if(btnFlag == 1){
+								btnFlag = 0;
+								switch(btn_value){
+								case 0b1: // select
+									if(cursorPos == 0){ // random damage
+										SELECT = true;
+										xil_printf("rand damage\r\n");
+										// Player attacks
+										xil_printf("player attacks\n\r");
+										// effective sound effect
+										// random hit animation
+										playAnimation(3);
+										randomDamage(&characters[ordering[currEnemy]]);
+										bool diedBeforeTurn = 0;
+										if(characters[ordering[currEnemy]].health<=0){ // Enemy dies
+											diedBeforeTurn = 1;
+										}
+//											updateHealth();
+										EFFECTIVE = true;
+										animateEnemyDamage();
+
+										// Enemy attacks
+										if(diedBeforeTurn == 0){
+											xil_printf("enemy attacks\n\r");
+											playEnemyAnimation();
+											randomDamage(&characters[6]);
+//												updateHealth();
+											EFFECTIVE = true;
+											animatePlayerDamage();
+										}
+									}else if(cursorPos == 1){ // timed damage
+										SELECT = true;
+										xil_printf("timed damage\r\n");
+										// Player attacks
+										xil_printf("player attacks\n\r");
+										// effective sound effect
+										// timed hit animation
+
+										int numAttacks = countTimes();
+										for(int i = 0; i < numAttacks; i++){
+											playAnimation(4);
+										}
+										timedDamage(&characters[ordering[currEnemy]], numAttacks);
+										bool diedBeforeTurn = 0;
+										if(characters[ordering[currEnemy]].health<=0){ // Enemy dies
+											diedBeforeTurn = 1;
+										}
+//											updateHealth();
+										EFFECTIVE = true;
+										animateEnemyDamage();
+
+										// Enemy attacks
+										if(diedBeforeTurn == 0){
+											xil_printf("enemy attacks\n\r");
+											playEnemyAnimation();
+											randomDamage(&characters[6]); // Enemy does damage to player
+//												updateHealth();
+											EFFECTIVE = true;
+											animatePlayerDamage();
+										}
+									}else if(cursorPos == 2){ // type damage
+										SELECT = true;
+										xil_printf("type damage\r\n");
+										// Player attacks
+										xil_printf("player attacks\n\r");
+										// type hit animation, changes based on starter
+										if(cursorVal == 0){
+											playAnimation(0);
+										}else if(cursorVal == 1){
+											playAnimation(1);
+										}else{
+											playAnimation(2);
+										}
+										if(characters[6].type == (characters[ordering[currEnemy]].type -1)){ // super effective
+											// super effective sound
+											SUPEREFFECTIVE = true;
+										}else if(characters[6].type == (characters[ordering[currEnemy]].type +1)){ // not effective
+											NOTEFFECTIVE = true;
+											// not effective sound
+										}else{ // effective
+											EFFECTIVE = true;
+											// effective sound
+										}
+										typeDamage(&characters[6], &characters[ordering[currEnemy]]);
+										bool diedBeforeTurn = 0;
+										if(characters[ordering[currEnemy]].health<=0){ // Enemy dies
+											diedBeforeTurn = 1;
+										}
+//											updateHealth();
+										animateEnemyDamage();
+
+										// Enemy attacks
+										if(diedBeforeTurn == 0){
+											xil_printf("enemy attacks\n\r");
+											playEnemyAnimation();
+											randomDamage(&characters[6]); // Enemy does damage to player
+//												updateHealth();
+											EFFECTIVE = true;
+											animatePlayerDamage();
+										}
+									}else if(cursorPos == 3){ // back
+										innerFlag = 0;
+										// play deselect
+										DESELECT = true;
+										break;
+									}
+									break;
+								case 0b100: // left
+									if(cursorPos == 0 || cursorPos == 2){
+										// error sound
+										ERROR = true;
+									}else{
+										cursorPos -= 1;
+										objects[9].posX -= 100;
+										// move sound
+										MOVE = true;
+									}
+									break;
+								case 0b1000: // right
+									if(cursorPos == 1 || cursorPos == 3){
+										// error sound
+										ERROR = true;
+									}else{
+										cursorPos += 1;
+										objects[9].posX += 100;
+										// move sound
+										MOVE = true;
+									}
+									break;
+								case 0b10000: // up
+									if(cursorPos == 0 || cursorPos == 1){
+										// error sound
+										ERROR = true;
+									}else{
+										cursorPos -= 2;
+										objects[9].posY -= 15;
+										// move sound
+										MOVE = true;
+									}
+									break;
+								case 0b10: // down
+									if(cursorPos == 2 || cursorPos == 3){
+										// error sound
+										ERROR = true;
+									}else{
+										cursorPos += 2;
+										objects[9].posY += 15;
+										// move sound
+										MOVE = true;
+									}
+									break;
+								default:
+									break;
+								}
+								// check game state
+								if(characters[6].health<=0){ // Player died
+									xil_printf("Player died\r\n");
+									loopFlag = 0;
+									break;
+								}
+								if(characters[ordering[currEnemy]].health<=0){ // Enemy dies
+									if(currEnemy >= 5){
+										xil_printf("Victory!\r\n");
+										playerWin = true;
+										STATE2 = true;
+										loopFlag = 0;
+										break;
+									}
+									objects[ordering[currEnemy]+16].draw = false;
+									objects[ordering[currEnemy]+22].dead = true;
+									currEnemy++;
+									objects[ordering[currEnemy]+16].draw = true;
+									enemySprite = ordering[currEnemy]+16;
+								}
+								printNames();
+								stringToImage("random", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+								stringToImage("dmg", TEXT_BASE_WIDTH + 49, TEXT_BASE_HEIGHT);
+								stringToImage("timed", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+								stringToImage("dmg", TEXT_ADD_WIDTH + 42, TEXT_BASE_HEIGHT);
+								stringToImage("type", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+								stringToImage("dmg", TEXT_BASE_WIDTH + 35, TEXT_ADD_HEIGHT);
+								stringToImage("back", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+								updateAndRender();
+							}
+						}
+					}else if(cursorPos == 1){ // settings
+						SELECT = true;
+						bool innerFlag = true;
+						while(innerFlag){ // choose a setting
+							if(btnFlag == 1){
+								btnFlag = 0;
+								switch(btn_value){
+								case 0b1: // select
+										if(cursorPos == 0){ // volume up
+											if(VOLUME != 2000){
+												VOLUME += 100;
+											}
+											MOVE = true;
+											xil_printf("vol up\r\n");
+										}else if(cursorPos == 1){ // volume down
+											if(VOLUME != 0){
+												VOLUME -= 100;
+											}
+											MOVE = true;
+											xil_printf("vol down\r\n");
+										}else if(cursorPos == 2){ // change sprite (? maybe)
+											ERROR = true;
+											hueShift = ((int)(*lfsr_ptr) % 255) + 1;
+											xil_printf("hueShift = %d\r\n", hueShift);
+										}else if(cursorPos == 3){ // back
+											innerFlag = 0;
+											DESELECT = true;
+											break;
+										}
+									break;
+								case 0b100: // left
+									if(cursorPos == 0 || cursorPos == 2){
+										ERROR = true;
+									}else{
+										cursorPos -= 1;
+										objects[9].posX -= 100;
+										MOVE = true;
+									}
+									break;
+								case 0b1000: // right
+									if(cursorPos == 1 || cursorPos == 3){
+										ERROR = true;
+									}else{
+										cursorPos += 1;
+										objects[9].posX += 100;
+										MOVE = true;
+									}
+									break;
+								case 0b10000: // up
+									if(cursorPos == 0 || cursorPos == 1){
+										ERROR = true;
+									}else{
+										cursorPos -= 2;
+										objects[9].posY -= 15;
+										MOVE = true;
+									}
+									break;
+								case 0b10: // down
+									if(cursorPos == 2 || cursorPos == 3){
+										ERROR = true;
+									}else{
+										cursorPos += 2;
+										objects[9].posY += 15;
+										MOVE = true;
+									}
+									break;
+								default:
+									break;
+								}
+
+								printNames();
+								stringToImage("volume", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+								stringToImage("up", TEXT_BASE_WIDTH + 49, TEXT_BASE_HEIGHT);
+								stringToImage("volume", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+								stringToImage("down", TEXT_ADD_WIDTH + 49, TEXT_BASE_HEIGHT);
+								stringToImage("curr", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+								stringToImage(std::to_string(VOLUME), TEXT_BASE_WIDTH + 35, TEXT_ADD_HEIGHT);
+								stringToImage("back", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+								updateAndRender();
+							}
+						}
+					}else if(cursorPos == 2){ // heal
+						if(numHeals >0){
+							characters[6].health += baseDamage;
+							if(characters[6].health >= 288){
+								characters[6].health = 288;
+							}
+							HEAL = true;
+							numHeals--;
+							updateHealthHeal();
+							usleep(2000000);
+						}
+						playEnemyAnimation();
+						randomDamage(&characters[6]); // Enemy does damage to player
+						EFFECTIVE = true;
+						animatePlayerDamageHeal();
+					}else if(cursorPos == 3){ // quit
+						DESELECT = true;
+						xil_printf("User quit game\r\n");
+						loopFlag = 0;
+					}
+					break;
+				case 0b100:  // left
+					xil_printf("left\n\r");
+					if(cursorPos == 0 || cursorPos == 2){
+						ERROR = true;
+					}else{
+						cursorPos -= 1;
+						objects[9].posX -= 100;
+						MOVE = true;
+					}
+					break;
+				case 0b1000:  // right
+					xil_printf("right\n\r");
+					if(cursorPos == 1 || cursorPos == 3){
+						ERROR = true;
+					}else{
+						cursorPos += 1;
+						objects[9].posX += 100;
+						MOVE = true;
+					}
+					break;
+				case 0b10000:  // up
+					xil_printf("up\n\r");
+					if(cursorPos == 0 || cursorPos == 1){
+						ERROR = true;
+					}else{
+						cursorPos -= 2;
+						objects[9].posY -= 15;
+						MOVE = true;
+					}
+					break;
+				case 0b10:  // down
+					xil_printf("down\n\r");
+					if(cursorPos == 2 || cursorPos == 3){
+						ERROR = true;
+					}else{
+						cursorPos += 2;
+						objects[9].posY += 15;
+						MOVE = true;
+					}
+					break;
+				default:
+					break;
+			}
+			if(characters[6].health<0){ // Player died
+				xil_printf("Player died\r\n");
+				loopFlag = 0;
+				break;
+			}
+			printNames();
+			stringToImage("attack", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+			stringToImage("settings", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+			stringToImage("heal", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+			stringToImage(std::to_string(numHeals), TEXT_BASE_WIDTH + 35, TEXT_ADD_HEIGHT);
+			stringToImage("quit", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+			updateAndRender();
+		}
+	}
+
+	xil_printf("end\r\n");
+	gameState = 2;
+	for(int i=0; i<(int)objects.size(); i++){
+		objects[i].draw = false;
+	}
+	for(int i=0; i<(int)letters.size(); i++){
+		letters[i].draw = false;
+	}
+//	background = nullptr;
+//	upscaleBackground(background);
+//	scaledBackground = nullptr;
+	memset(scaledBackground, 0, NUM_BYTES_BUFFER); // fill with black
+	memcpy(image_buffer_pointer, scaledBackground, NUM_BYTES_BUFFER);
+	Xil_DCacheFlush();
+	if(playerWin == true){
+		STATE2 = true;
+		stringToImage("you", 92, 50);
+		stringToImage("win", 120, 50);
+		objects[13 + cursorVal].draw = true;
+		objects[13 + cursorVal].posX = 88;
+		objects[13 + cursorVal].posY = 60;
+
+	}else{
+		stringToImage("you", 92, 50);
+		stringToImage("lost", 120, 50);
+		objects[ordering[currEnemy]+16].draw = true;
+		objects[ordering[currEnemy]+16].posX = 88;
+		objects[ordering[currEnemy]+16].posY = 60;
+	}
+	updateAndRender();
+    return 0;
+}

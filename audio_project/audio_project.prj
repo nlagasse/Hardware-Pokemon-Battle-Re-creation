@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sdkproject:SdkProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdkproject="http://www.xilinx.com/sdkproject" name="audio_project" location="C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project" platform="C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm" platformUID="xilinx:zed::0.0(custom)" systemProject="project_system" sysConfig="final_platform" runtime="C/C++" cpu="standalone_domain" cpuInstance="ps7_cortexa9_0" os="standalone" mssSignature="0da02c28ef16e7090020551af6ee2128">
+  <configuration name="Debug" id="xilinx.gnu.armv7.exe.debug.1270790522">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+    <lastBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <configuration name="Release" id="xilinx.gnu.armv7.exe.release.780802990" dirty="true">
+    <configBuildOptions xsi:type="sdkproject:SdkOptions"/>
+  </configuration>
+  <template appTemplateName="empty_application"/>
+</sdkproject:SdkProject>

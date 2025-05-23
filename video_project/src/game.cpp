@@ -1,0 +1,547 @@
+#include "game.h"
+#include "utils.h"
+
+int* scaledBackground = nullptr;
+int* background = nullptr;
+character characters[numEnemies + 1] = {};
+int cursorVal = 1;
+int currEnemy = 0;
+int ordering[numEnemies] = {};
+std::vector<object> objects = {};
+std::vector<object> letters = {};
+std::vector<object> renderQueue = {};
+int gameState = 0;
+int hueShift = 0;
+
+//----------------------------------------------------
+// Background Upscaling Function
+//----------------------------------------------------
+/*
+ * upscaleBackground
+ *
+ * Upscales a 240×160 source image (src) by replicating each pixel 5×5,
+ * producing a 1200×800 image centered within a 1280×1024 display.
+ * The result is stored in the global buffer scaledBackground.
+ */
+void upscaleBackground(const int* src) {
+    const int srcWidth  = 240;
+    const int srcHeight = 160;
+    const int scale     = 5;
+    const int scaledW   = srcWidth * scale;   // 1200
+    const int scaledH   = srcHeight * scale;  // 800
+    const int bgWidth   = displayWidth;       // 1280
+    const int bgHeight  = displayHeight;      // 1024
+
+    // (Re)allocate scaledBackground buffer
+    if (scaledBackground)
+        free(scaledBackground);
+    scaledBackground = (int*)malloc(NUM_BYTES_BUFFER);
+    if (!scaledBackground) {
+        xil_printf("Failed to allocate scaledBackground\n\r");
+        return;
+    }
+
+    memset(scaledBackground, 0, NUM_BYTES_BUFFER); // fill with black
+
+    int offsetX = (bgWidth - scaledW) / 2;  // e.g., 40
+    int offsetY = (bgHeight - scaledH) / 2;   // e.g., 112
+
+    for (int y = 0; y < srcHeight; y++) {
+        for (int x = 0; x < srcWidth; x++) {
+            int pixel = src[y * srcWidth + x];
+            for (int dy = 0; dy < scale; dy++) {
+                int fbY = offsetY + y * scale + dy;
+                if (fbY < 0 || fbY >= bgHeight)
+                    continue;
+                for (int dx = 0; dx < scale; dx++) {
+                    int fbX = offsetX + x * scale + dx;
+                    if (fbX < 0 || fbX >= bgWidth)
+                        continue;
+                    scaledBackground[fbY * bgWidth + fbX] = pixel;
+                }
+            }
+        }
+    }
+    xil_printf("Upscale done\n\r");
+}
+
+
+//----------------------------------------------------
+// Render Function: Composes the Scene
+//----------------------------------------------------
+void renderScene(const std::vector<object>& objs) {
+    int* buffer = (int*)0x11952008;
+    memcpy(buffer, scaledBackground, NUM_BYTES_BUFFER);
+
+    const int scale = 5;
+    const int logicalWidth  = 240;
+    const int logicalHeight = 160;
+    const int scaledW = logicalWidth * scale;
+    const int scaledH = logicalHeight * scale;
+    int offsetX = (displayWidth - scaledW) / 2;
+    int offsetY = (displayHeight - scaledH) / 2;
+
+    // Copy objects vector and sort by zIndex for proper layering
+    std::vector<object> sortedObjs = objs;
+    std::sort(sortedObjs.begin(), sortedObjs.end(), [](const object &a, const object &b) {
+        return a.zIndex < b.zIndex;
+    });
+
+    for (const auto& obj : sortedObjs) {
+        if (obj.draw) { // check if object wants to be drawn
+            int objBaseX = offsetX + obj.posX * scale;
+            int objBaseY = offsetY + obj.posY * scale;
+
+            int* tempImage = new int[obj.width * obj.height];
+
+            if(&obj == &objects[10] || &obj == &objects[11] || &obj == &objects[12]){ // hue shift
+            	xil_printf("here\r\n");
+            	for (int i = 0; i < obj.width * obj.height; i++){
+            		int pixel = obj.image[i];
+
+            		int alpha = (pixel >> 24) & 0xFF;
+					int blue  = (pixel >> 16) & 0xFF;
+					int green = (pixel >> 8)  & 0xFF;
+					int red   = pixel & 0xFF;
+
+					red = (int)((red + hueShift) % 256);
+					green = (int)((green + hueShift) % 256);
+					blue = (int)((blue + hueShift) % 256);
+
+					tempImage[i] = (alpha << 24) | (blue << 16) | (green << 8) | red;
+            	}
+            }else if (obj.dead) {
+                for (int i = 0; i < obj.width * obj.height; i++) {
+                    int pixel = obj.image[i];
+
+                    int alpha = (pixel >> 24) & 0xFF;
+                    int blue  = (pixel >> 16) & 0xFF;
+                    int green = (pixel >> 8)  & 0xFF;
+                    int red   = pixel & 0xFF;
+
+                    red   = (int)(red + 0.5 * (255 - red));
+                    green = (int)(green * (0.5));
+                    blue  = (int)(blue * (0.5));
+
+                    tempImage[i] = (alpha << 24) | (blue << 16) | (green << 8) | red;
+                }
+            } else {
+                std::memcpy(tempImage, obj.image, obj.width * obj.height * sizeof(int));
+            }
+
+            for (int y = 0; y < obj.height; y++) {
+                for (int sy = 0; sy < scale; sy++) {
+                    int fbY = objBaseY + y * scale + sy;
+                    if (fbY < 0 || fbY >= displayHeight)
+                        continue;
+                    for (int x = 0; x < obj.width; x++) {
+                        int pixel = tempImage[y * obj.width + x];
+                        int alpha = (pixel & 0xFF000000) >> 24;
+                        if (alpha == 0x00)
+                            continue;
+                        for (int sx = 0; sx < scale; sx++) {
+                            int fbX = objBaseX + x * scale + sx;
+                            if (fbX < 0 || fbX >= displayWidth)
+                                continue;
+                            buffer[fbY * displayWidth + fbX] = pixel;
+                        }
+                    }
+                }
+            }
+
+            delete[] tempImage;
+        }
+    }
+
+    if (gameState == 1) {
+		const int barWidth = 48;
+		const int barHeight = 3;
+		const int scale = 5;
+		const int healthPerPixel = 6;
+
+		int playerBaseX = offsetX + 174 * scale;
+		int playerBaseY = offsetY + 95 * scale;
+		int enemyBaseX  = offsetX + 44 * scale;
+		int enemyBaseY  = offsetY + 22 * scale;
+
+		// Draw player health bar
+		for (int y = 0; y < barHeight; y++) {
+			for (int sy = 0; sy < scale; sy++) {
+				int fbY_player = playerBaseY + y * scale + sy;
+				if (fbY_player >= 0 && fbY_player < displayHeight) {
+					for (int x = 0; x < barWidth; x++) {
+						int fbX = playerBaseX + x * scale;
+						if (fbX >= 0 && fbX < displayWidth) {
+							// RED/YELLOW/GREEN for remaining health, black for lost health
+							int color = 0;
+							if(((characters[6].health / healthPerPixel) > 0) && ((characters[6].health / healthPerPixel) < 12)){
+								color = (x < (characters[6].health / healthPerPixel)) ? 0xFF0000FF : 0xFF000000; // RED
+							}else if(((characters[6].health / healthPerPixel) >= 12) && ((characters[6].health / healthPerPixel) < 24)){
+								color = (x < (characters[6].health / healthPerPixel)) ? 0xFF00FFFF : 0xFF000000; // YELLOW
+							}else{
+								color = (x < (characters[6].health / healthPerPixel)) ? 0xFF00FF00 : 0xFF000000; // GREEN
+							}
+//							int color = (x < (characters[6].health / healthPerPixel)) ? 0xFF00FF00 : 0xFF000000; // GREEN
+							for (int sx = 0; sx < scale; sx++) {
+								buffer[fbY_player * displayWidth + fbX + sx] = color;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Draw enemy health bar
+		for (int y = 0; y < barHeight; y++) {
+			for (int sy = 0; sy < scale; sy++) {
+				int fbY_enemy = enemyBaseY + y * scale + sy;
+				if (fbY_enemy >= 0 && fbY_enemy < displayHeight) {
+					for (int x = 0; x < barWidth; x++) {
+						int fbX = enemyBaseX + x * scale;
+						if (fbX >= 0 && fbX < displayWidth) {
+							// RED/YELLOW/GREEN for remaining health, black for lost health
+							int color = 0;
+							if((characters[ordering[currEnemy]].health > 0) && (characters[ordering[currEnemy]].health < 12)){
+								color = (x < characters[ordering[currEnemy]].health) ? 0xFF0000FF : 0xFF000000; // RED
+							}else if((characters[ordering[currEnemy]].health >= 12) && (characters[ordering[currEnemy]].health < 24)){
+								color = (x < characters[ordering[currEnemy]].health) ? 0xFF00FFFF : 0xFF000000; // YELLOW
+							}else{
+								color = (x < characters[ordering[currEnemy]].health) ? 0xFF00FF00 : 0xFF000000; // GREEN
+							}
+//							int color = (x < characters[ordering[currEnemy]].health) ? 0xFF00FF00 : 0xFF000000;
+							for (int sx = 0; sx < scale; sx++) {
+								buffer[fbY_enemy * displayWidth + fbX + sx] = color;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+    memcpy(image_buffer_pointer, buffer, NUM_BYTES_BUFFER);
+    Xil_DCacheFlush();
+    memcpy(image_buffer_pointer, buffer, NUM_BYTES_BUFFER);
+}
+
+void updateAndRender(){
+	renderQueue.clear();
+	renderQueue.insert(renderQueue.end(), objects.begin(), objects.end());
+	renderQueue.insert(renderQueue.end(), letters.begin(), letters.end());
+	renderScene(renderQueue);
+	letters.clear();
+}
+
+//----------------------------------------------------
+// Starter Menu Function
+//----------------------------------------------------
+void starterMenu() {
+
+    background = objects[1].image;
+	upscaleBackground(background);
+	memcpy(image_buffer_pointer, scaledBackground, NUM_BYTES_BUFFER);
+	Xil_DCacheFlush();
+
+    objects[14].draw = true;
+    objects[2].draw = true;
+    int loopFlag = 1;
+    int nameX = 93;
+    int nameY = 148;
+    xil_printf("Entering starter menu loop\n\r");
+    stringToImage("swampert", nameX, nameY);
+    updateAndRender();
+    while (loopFlag == 1) {
+//    	printf("IPC: %d\n\r", IPC_INTERRUPT);
+//        if (IPC_INTERRUPT == 1) {
+//        	IPC_INTERRUPT = 0;
+    	if(btnFlag == 1){
+    		btnFlag = 0;
+//            xil_printf("Button: %d\n\r", btn_value);
+            switch (btn_value) {
+                case 0b1:  // middle
+                	SELECT = true;
+                    xil_printf("middle\n\r");
+                    loopFlag = 0;
+                    break;
+                case 0b100:  // left
+                    xil_printf("left\n\r");
+                    if(cursorVal == 0){
+                    	// Can't go further
+                    	ERROR = true;
+                    }else if(cursorVal == 1){
+                    	MOVE = true;
+                    	cursorVal--;
+                    	objects[2].posX -= 48;
+						objects[14].draw = false;
+						objects[13].draw = true;
+                    }else if(cursorVal == 2){
+                    	MOVE = true;
+                    	cursorVal--;
+                    	objects[2].posX -= 48;
+						objects[15].draw = false;
+						objects[14].draw = true;
+                    }
+                    break;
+                case 0b1000:  // right
+                    xil_printf("right\n\r");
+                    if(cursorVal == 0){
+                    	MOVE = true;
+                    	cursorVal++;
+                    	objects[2].posX += 48;
+						objects[13].draw = false;
+						objects[14].draw = true;
+                    }else if(cursorVal == 1){
+                    	MOVE = true;
+                    	cursorVal++;
+                    	objects[2].posX += 48;
+						objects[14].draw = false;
+						objects[15].draw = true;
+                    }else if(cursorVal == 2){
+                    	// Can't go further
+                    	ERROR = true;
+                    }
+                    break;
+                case 0b10000:  // up
+                    xil_printf("up\n\r");
+                    ERROR = true;
+                    break;
+                case 0b10:  // down
+                    xil_printf("down\n\r");
+                    ERROR = true;
+                    break;
+                default:
+                    break;
+            }
+            if(cursorVal == 0){
+            	stringToImage("blaziken", nameX, nameY);
+            }else if(cursorVal == 1){
+            	stringToImage("swampert", nameX, nameY);
+            }else if(cursorVal == 2){
+            	stringToImage("sceptile", nameX, nameY);
+            }
+            updateAndRender();
+        }
+
+//    	updateAndRender();
+//        renderScene(objects);
+    }
+}
+
+void animateTest(){
+		std::vector<object> moveFrames;
+		int* fireFrames[4];
+		for(int i = 0; i < 4; i++){
+			fireFrames[i] = (int*)(0x1341FA3C + (i*0x1000));
+			moveFrames.push_back({fireFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+		int* waterFrames[8];
+		for(int i = 0; i < 8; i++){
+			waterFrames[i] = (int*)(0x13423A3C + (i * 0x1000));
+			moveFrames.push_back({waterFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+		int* grassFrames[4];
+		for(int i = 0; i < 4; i++){
+			grassFrames[i] = (int*)(0x1342BA3C + (i * 0x2000));
+			moveFrames.push_back({grassFrames[i], 64, 32, 138, 24, 1, 1});
+		}
+		int* lightningFrames[5];
+		for(int i = 0; i < 5; i++){
+			lightningFrames[i] = (int*)(0x13433A3C + (i*0x1000));
+			moveFrames.push_back({lightningFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+
+		animateMove(moveFrames);
+}
+
+void playAnimation(int animNum){
+	std::vector<object> moveFrames;
+	switch(animNum){
+	case 0:
+	{
+		int* fireFrames[4];
+		for(int i = 0; i < 4; i++){
+			fireFrames[i] = (int*)(0x1341FA3C + (i*0x1000));
+			moveFrames.push_back({fireFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+		break;
+	}
+	case 1:
+	{
+		int* waterFrames[8];
+		for(int i = 0; i < 8; i++){
+			waterFrames[i] = (int*)(0x13423A3C + (i * 0x1000));
+			moveFrames.push_back({waterFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+		break;
+	}
+	case 2:
+	{
+		int* grassFrames[4];
+		for(int i = 0; i < 4; i++){
+			grassFrames[i] = (int*)(0x1342BA3C + (i * 0x2000));
+			moveFrames.push_back({grassFrames[i], 64, 32, 138, 24, 1, 1});
+		}
+		break;
+	}
+	case 3:
+	{
+		int* lightningFrames[5];
+		for(int i = 0; i < 5; i++){
+			lightningFrames[i] = (int*)(0x13433A3C + (i*0x1000));
+			moveFrames.push_back({lightningFrames[i], 32, 32, 154, 24, 1, 1});
+		}
+		break;
+	}
+	case 4:
+	{
+		int* kickFrames = (int*)0x1341F014;
+		moveFrames.push_back({kickFrames, 26, 25, 157, 27, 1, 1});
+		for(int i = 0; i < 1; i++){
+			moveFrames.push_back({kickFrames, 26, 25, 157, 27, 1, 1});
+		}
+		for(int i = 0; i < 1; i++){
+			moveFrames.push_back({kickFrames, 26, 25, 157, 27, 1, 0});
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+	animateMove(moveFrames);
+}
+
+void playEnemyAnimation(){
+	std::vector<object> moveFrames;
+	int* lightningFrames[5];
+	for(int i = 0; i < 5; i++){
+		lightningFrames[i] = (int*)(0x13433A3C + (i*0x1000));
+		moveFrames.push_back({lightningFrames[i], 32, 32, 64, 64, 1, 1});
+	}
+	animateMove(moveFrames);
+}
+
+void animateMove(const std::vector<object>& moveFrames){
+	int* origBuffer = (int*)0x11952008;
+	memcpy(origBuffer, image_buffer_pointer, NUM_BYTES_BUFFER);
+
+	const int scale = 5;
+	const int logicalWidth  = 240;
+	const int logicalHeight = 160;
+	const int scaledW = logicalWidth * scale;
+	const int scaledH = logicalHeight * scale;
+	int offsetX = (displayWidth - scaledW) / 2;
+	int offsetY = (displayHeight - scaledH) / 2;
+
+	XTime frameStart, frameEnd;
+	const double FRAME_TIME_SEC = 1.0 / 30.0;
+
+	for (const auto& obj : moveFrames) {
+		if(obj.draw){
+			XTime_GetTime(&frameStart);
+
+			int* buffer = (int*)0x138F6018;
+			memcpy(buffer, origBuffer, NUM_BYTES_BUFFER);
+
+			int objBaseX = offsetX + obj.posX * scale;
+			int objBaseY = offsetY + obj.posY * scale;
+
+			for (int y = 0; y < obj.height; y++) {
+				for (int sy = 0; sy < scale; sy++) {
+					int fbY = objBaseY + y * scale + sy;
+					if (fbY < 0 || fbY >= displayHeight)
+						continue;
+					for (int x = 0; x < obj.width; x++) {
+						int pixel = obj.image[y * obj.width + x];
+						int alpha = (pixel & 0xFF000000) >> 24;
+						if (alpha == 0x00)
+							continue;
+						for (int sx = 0; sx < scale; sx++) {
+							int fbX = objBaseX + x * scale + sx;
+							if (fbX < 0 || fbX >= displayWidth)
+								continue;
+							buffer[fbY * displayWidth + fbX] = pixel;
+						}
+					}
+				}
+			}
+
+			memcpy(image_buffer_pointer, buffer, NUM_BYTES_BUFFER);
+			memcpy(image_buffer_pointer, buffer, NUM_BYTES_BUFFER);
+
+			XTime_GetTime(&frameEnd);
+
+			double elapsedSec = (double)(frameEnd - frameStart) / CLOCKSPEED;
+
+			double sleepSec = FRAME_TIME_SEC - elapsedSec;
+			if(sleepSec > 0){
+				usleep((useconds_t)(sleepSec * 1e6));
+			}
+		}else{
+			XTime_GetTime(&frameStart);
+
+			memcpy(image_buffer_pointer, origBuffer, NUM_BYTES_BUFFER);
+			Xil_DCacheFlush();
+			memcpy(image_buffer_pointer, origBuffer, NUM_BYTES_BUFFER);
+
+			XTime_GetTime(&frameEnd);
+			double elapsedSec = (double)(frameEnd - frameStart) / CLOCKSPEED;
+			double sleepSec = FRAME_TIME_SEC - elapsedSec;
+			if(sleepSec > 0){
+				usleep((useconds_t)(sleepSec * 1e6));
+			}
+		}
+	}
+
+	memcpy(image_buffer_pointer, origBuffer, NUM_BYTES_BUFFER);
+	memcpy(image_buffer_pointer, origBuffer, NUM_BYTES_BUFFER);
+}
+
+void animatePlayerDamage(){
+	for(int i = 0; i < 3; i++){
+		objects[playerSprite].draw = 0;
+		updateHealth();
+		objects[playerSprite].draw = 1;
+		updateHealth();
+	}
+}
+
+void animateEnemyDamage(){
+	for(int i = 0; i < 3; i++){
+		objects[enemySprite].draw = 0;
+		updateHealth();
+		objects[enemySprite].draw = 1;
+		updateHealth();
+	}
+}
+
+void updateHealth(){
+	printNames();
+	stringToImage("random", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("dmg", TEXT_BASE_WIDTH + 49, TEXT_BASE_HEIGHT);
+	stringToImage("timed", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("dmg", TEXT_ADD_WIDTH + 42, TEXT_BASE_HEIGHT);
+	stringToImage("type", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+	stringToImage("dmg", TEXT_BASE_WIDTH + 35, TEXT_ADD_HEIGHT);
+	stringToImage("back", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+	updateAndRender();
+}
+
+void updateHealthHeal(){
+	printNames();
+	stringToImage("attack", TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("settings", TEXT_ADD_WIDTH, TEXT_BASE_HEIGHT);
+	stringToImage("heal", TEXT_BASE_WIDTH, TEXT_ADD_HEIGHT);
+	stringToImage(std::to_string(numHeals), TEXT_BASE_WIDTH + 35, TEXT_ADD_HEIGHT);
+	stringToImage("quit", TEXT_ADD_WIDTH, TEXT_ADD_HEIGHT);
+	updateAndRender();
+}
+
+void animatePlayerDamageHeal(){
+	for(int i = 0; i < 3; i++){
+		objects[playerSprite].draw = 0;
+		updateHealthHeal();
+		objects[playerSprite].draw = 1;
+		updateHealthHeal();
+	}
+}

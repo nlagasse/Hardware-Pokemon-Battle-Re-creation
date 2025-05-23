@@ -1,0 +1,45 @@
+Nothing to build in platform 'final_platform'
+
+13:07:50 **** Incremental Build of configuration Debug for project audio_project ****
+make all 
+make --no-print-directory pre-build
+a9-linaro-pre-build-step
+' '
+make --no-print-directory main-build
+make[1]: Nothing to be done for 'main-build'.
+13:07:51 **** Incremental Build of configuration Debug for project video_project ****
+make all 
+make --no-print-directory pre-build
+a9-linaro-pre-build-step
+' '
+make --no-print-directory main-build
+'Building file: ../src/utils.cpp'
+'Invoking: ARM v7 g++ compiler'
+arm-none-eabi-g++ -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/utils.o" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -IC:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/sw/final_platform/standalone_ps7_cortexa9_1/bspinclude/include -MMD -MP -MF"src/utils.d" -MT"src/utils.o" -o "src/utils.o" "../src/utils.cpp"
+In file included from ../src/config.h:13,
+                 from ../src/game.h:4,
+                 from ../src/utils.h:4,
+                 from ../src/utils.cpp:1:
+C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/sw/final_platform/standalone_ps7_cortexa9_1/bspinclude/include/xtime_l.h:65:70: note: #pragma message: For the sleep routines, Global timer is being used
+   65 | #pragma message ("For the sleep routines, Global timer is being used")
+      |                                                                      ^
+'Finished building: ../src/utils.cpp'
+' '
+'Building target: video_project.elf'
+'Invoking: ARM v7 g++ linker'
+arm-none-eabi-g++ -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec -Wl,-T -Wl,../src/lscript.ld -LC:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/sw/final_platform/standalone_ps7_cortexa9_1/bsplib/lib -o "video_project.elf"  ./src/config.o ./src/game.o ./src/main.o ./src/utils.o   -Wl,--start-group,-lxil,-lgcc,-lc,-lstdc++,--end-group
+'Finished building target: video_project.elf'
+' '
+'Invoking: ARM v7 Print Size'
+arm-none-eabi-size video_project.elf  |tee "video_project.elf.size"
+   text	   data	    bss	    dec	    hex	filename
+ 609806	   3844	6312608	6926258	 69afb2	video_project.elf
+'Finished building: video_project.elf.size'
+' '
+13:07:53 **** Incremental Build of configuration Debug for project project_system ****
+make all 
+Generating bif file for the system project
+generate_system_bif.bat 50334 C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm standalone_domain,standalone_ps7_cortexa9_1 C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/project_system/Debug/system.bif
+sdcard_gen --xpfm C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm --sys_config final_platform --bif C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/project_system/Debug/system.bif --bitstream C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit --elf C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/Debug/audio_project.elf,ps7_cortexa9_0 --elf C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/video_project/Debug/video_project.elf,ps7_cortexa9_1
+creating BOOT.BIN using C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/audio_project/_ide/bitstream/design_1_wrapper_alt_address.bit
+Running C:/Xilinx/Vitis/2020.2/bin/bootgen  -image C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/project_system/Debug/sd_card_temp/boot.bif -w -o i BOOT.BIN

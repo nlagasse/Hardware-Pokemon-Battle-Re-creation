@@ -1,0 +1,10 @@
+13:07:50 **** Incremental Build of configuration Debug for project audio_project ****
+make all 
+make --no-print-directory pre-build
+a9-linaro-pre-build-step
+' '
+make --no-print-directory main-build
+make[1]: Nothing to be done for 'main-build'.
+
+13:07:50 Build Finished (took 367ms)
+

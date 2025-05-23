@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ASCII"?>
+<systemproject:SystemProject xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sdsproject="http://www.xilinx.com/sdsproject" xmlns:systemproject="http://www.xilinx.com/systemproject" name="project_system" platform="C:/Users/nlaga/Desktop/SFU/Spring2025/Ensc452/final_workspace/final_platform/export/final_platform/final_platform.xpfm" platformUID="xilinx:zed::0.0(custom)" sysConfig="final_platform" runtime="C/C++" rootFSLocation="" linuxImage="" sysroot="">
+  <configuration name="Debug" id="com.xilinx.sdx.system.managedbuilder.debugConfiguration.1626215535">
+    <configBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="audio_project" domainName="standalone_domain" domainPrettyName="standalone_domain" appBuildConfig="Debug"/>
+      <applications name="video_project" domainName="standalone_ps7_cortexa9_1" domainPrettyName="standalone_ps7_cortexa9_1" appBuildConfig="Debug"/>
+      <options xsi:type="sdsproject:Option" gensdcard="true" dmclkid="0"/>
+    </configBuildOptions>
+    <lastBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="audio_project" domainName="standalone_domain" domainPrettyName="standalone_domain" appBuildConfig="Debug"/>
+      <applications name="video_project" domainName="standalone_ps7_cortexa9_1" domainPrettyName="standalone_ps7_cortexa9_1" appBuildConfig="Debug"/>
+      <options xsi:type="sdsproject:Option" gensdcard="true" dmclkid="0"/>
+    </lastBuildOptions>
+  </configuration>
+  <configuration name="Release" id="com.xilinx.sdx.system.managedbuilder.releaseConfiguration.776823576">
+    <configBuildOptions xsi:type="systemproject:SystemOptions">
+      <applications name="audio_project" domainName="standalone_domain" domainPrettyName="standalone_domain" appBuildConfig="Release"/>
+      <applications name="video_project" domainName="standalone_ps7_cortexa9_1" domainPrettyName="standalone_ps7_cortexa9_1" appBuildConfig="Release"/>
+      <options xsi:type="sdsproject:Option" gensdcard="true" dmclkid="0"/>
+    </configBuildOptions>
+  </configuration>
+</systemproject:SystemProject>
